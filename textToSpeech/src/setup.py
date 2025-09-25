@@ -83,7 +83,7 @@ executables = [Executable("../src/MainGUI.py", base=base)]
 
 setup(
     name="TTS",
-    version="0.1",
+    version="0.2",
     description="Text To Speech",
     options={
         "build_exe": build_exe_options,

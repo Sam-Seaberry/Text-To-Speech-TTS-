@@ -1,8 +1,6 @@
-import pymupdf4llm
 import pymupdf
 import edge_tts
 import re
-import torch 
 import logging
 
 logger = logging.getLogger('Main')
@@ -19,15 +17,7 @@ class textToSpeech():
         self.text = text
 
     def setVoice(self, voice):
-        match int(voice):
-            case 0:
-                self.speaker = 'en-GB-SoniaNeural'
-            case 1:
-                self.speaker = 'en-AU-WilliamNeural'
-            case 2:
-                self.speaker = 'en-US-ChristopherNeural'
-            case _:
-                self.speaker = 'en-US-SteffanNeural'
+        self.speaker = str(voice)
 
 
     def getVoice(self):
