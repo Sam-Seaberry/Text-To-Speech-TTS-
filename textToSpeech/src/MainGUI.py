@@ -61,11 +61,16 @@ class MainWindow(QtWidgets.QMainWindow):
         self.outputFolder = ''
         self.speaker = textToSpeech.textToSpeech()
 
-        self.ui = uic.loadUi('./res/MainGUI.ui', self)
+        self.ui = uic.loadUi('./res/UI/MainGUI.ui', self)
+
+        self.setupVoiceSelect()
 
         self.ui.addPDFButton.clicked.connect(lambda: self.ui.inputPDF.setText((QFileDialog.getOpenFileName(self, 'Open File', os.path.expanduser("~")))[0]))
-        self.ui.outputFileButton.clicked.connect(lambda: self.setOutputLoc())
-        self.ui.runButton.clicked.connect(lambda: self.run())
+        self.ui.outputFileButton.clicked.connect(self.setOutputLoc)
+        self.ui.runButton.clicked.connect(self.run)
+
+        self.ui.voiceSelect.currentIndexChanged.connect(self.selectVoice)
+
         self.show()
 
     def run(self):
@@ -73,16 +78,15 @@ class MainWindow(QtWidgets.QMainWindow):
             logger.error("No Output file name or location given")
             return
         outputfile = os.path.join(self.ui.outputFileLoc.text(), self.ui.resultFileName.text() + '.mp3').replace('\\','/')
+        self.selectVoice()
         if self.ui.fromFileCheck.isChecked():
             self.speaker.setOutputName(str(outputfile))
             self.speaker.setPDF(str(self.ui.inputPDF.text()))
-            self.speaker.setVoice(0)
             self.speaker.createTextFileFromPDF(True, True)
             self.speaker.textToSpeechEdge()
         else:
             self.speaker.setOutputName(str(outputfile))
             self.speaker.setText(self.ui.textInput.toPlainText())
-            self.speaker.setVoice(0)
             self.speaker.textToSpeechEdge()
         self.setOutputLoc(True)
 
@@ -138,6 +142,20 @@ class MainWindow(QtWidgets.QMainWindow):
     def open_audio_player(self, file_path):
         self.player_window = AudioPlayer(file_path)
         self.player_window.show()
+
+    def setupVoiceSelect(self):
+        voices = []
+        with open('./res/voices.txt', 'r', encoding='utf-8') as file:
+            for line in file:
+                if line.startswith("ShortName:"):
+                    shortname = line.split(":", 1)[1].strip()
+                    voices.append(shortname)
+        self.ui.voiceSelect.setCurrentText(voices[0])
+        for i in voices:
+            self.ui.voiceSelect.addItem(i)
+
+    def selectVoice(self):
+        self.speaker.setVoice(self.ui.voiceSelect.currentText())
 
 
 app = QtWidgets.QApplication(sys.argv)
